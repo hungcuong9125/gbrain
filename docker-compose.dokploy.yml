@@ -45,12 +45,9 @@ services:
       GBRAIN_MODEL: "${GBRAIN_MODEL}"
       GBRAIN_EMBEDDING_MODEL: "${GBRAIN_EMBEDDING_MODEL}"
       GBRAIN_EMBEDDING_DIMENSIONS: "${GBRAIN_EMBEDDING_DIMENSIONS}"
-
-      # Lấy từ .env: set POSTGRES_PASSWORD=<your-password>
-      # DATABASE_URL tự động ghép từ biến này
-      DATABASE_URL: "postgresql://gbrain:${POSTGRES_PASSWORD}@postgres:5432/gbrain"
-
       GBRAIN_EMBED_ON_START: "${GBRAIN_EMBED_ON_START:-false}"
+
+      DATABASE_URL: "postgresql://gbrain:${POSTGRES_PASSWORD}@postgres:5432/gbrain"
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3131/health"]
