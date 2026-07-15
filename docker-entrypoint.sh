@@ -13,6 +13,10 @@ if [ -n "${DATABASE_URL:-}" ]; then
   echo "[entrypoint] Postgres ready"
 fi
 
+# ── Apply migrations (create schema first) ────────────
+echo "[entrypoint] Applying database migrations..."
+gbrain apply-migrations --yes --non-interactive
+
 # ── Config model tiers ─────────────────────────────────
 MODEL="${GBRAIN_MODEL:-openai:gpt-4o-mini}"
 echo "[entrypoint] Configuring model tiers → $MODEL"
@@ -28,10 +32,6 @@ done
 
 # ── Enable gateway-native loop (provider-agnostic) ────
 gbrain config set agent.use_gateway_loop true --force
-
-# ── Apply migrations ──────────────────────────────────
-echo "[entrypoint] Applying database migrations..."
-gbrain apply-migrations --yes --non-interactive
 
 # ── Embed stale pages (optional) ──────────────────────
 if [[ "${GBRAIN_EMBED_ON_START:-false}" == "true" ]]; then
