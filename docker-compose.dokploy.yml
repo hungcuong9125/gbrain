@@ -1,0 +1,62 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    container_name: gbrain-postgres
+
+    environment:
+      POSTGRES_USER: gbrain
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: gbrain
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gbrain -d gbrain"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  gbrain:
+    # Pull pre-built image from GHCR.
+    # Build pipeline: .github/workflows/docker.yml
+    image: ghcr.io/${REPOSITORY_OWNER}/gbrain:${GBRAIN_TAG}
+    container_name: gbrain
+    restart: unless-stopped
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    ports:
+      - "${PORT:-3131}:3131"
+
+    volumes:
+      - gbrain-home:/root/.gbrain
+
+    environment:
+      PORT: "3131"
+      PUBLIC_URL: "${PUBLIC_URL}"
+
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+      OPENAI_BASE_URL: "${OPENAI_BASE_URL}"
+
+      GBRAIN_MODEL: "${GBRAIN_MODEL}"
+      GBRAIN_EMBEDDING_MODEL: "${GBRAIN_EMBEDDING_MODEL}"
+      GBRAIN_EMBEDDING_DIMENSIONS: "${GBRAIN_EMBEDDING_DIMENSIONS}"
+
+      # Construct DATABASE_URL as: postgresql://gbrain:<password>@postgres:5432/gbrain
+      DATABASE_URL: "${DATABASE_URL}"
+
+      GBRAIN_EMBED_ON_START: "${GBRAIN_EMBED_ON_START:-false}"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3131/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres-data:
+  gbrain-home:
