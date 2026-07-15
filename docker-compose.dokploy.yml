@@ -21,7 +21,7 @@ services:
   gbrain:
     # Pull pre-built image from GHCR.
     # Build pipeline: .github/workflows/docker.yml
-    image: ghcr.io/${REPOSITORY_OWNER}/gbrain:${GBRAIN_TAG}
+    image: ghcr.io/${REPOSITORY_OWNER}/gbrain:latest
     container_name: gbrain
     restart: unless-stopped
 
