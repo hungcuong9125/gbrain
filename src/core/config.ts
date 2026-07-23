@@ -962,6 +962,7 @@ export const KNOWN_CONFIG_KEYS: readonly string[] = [
   'models.subagent',
   'models.expansion',
   'models.chat',
+  'models.brainstorm.judge',
   'models.eval.longmemeval',
   'facts.extraction_model',
   // #2113: output-token cap for the per-turn facts extractor (default 4000).
