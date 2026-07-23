@@ -1013,6 +1013,21 @@ async function runPhaseExtract(
 ): Promise<PhaseResult> {
   try {
     const { runExtractCore } = await import('../commands/extract.ts');
+    const { loadConfig } = await import('./config.ts');
+    // Default off: the incremental cycle extracts body links only unless the
+    // operator opts in to keeping externally-edited frontmatter links fresh too.
+    // Both planes, file wins (env > file > DB precedence, per loadConfigWithEngine):
+    // `gbrain config set autopilot.incremental_extract_include_frontmatter true`
+    // writes the DB plane (engine.setConfig), so a file-plane-only read here
+    // would make the documented enable command a silent no-op (#2120 class).
+    const fileVal = loadConfig()?.autopilot?.incremental_extract_include_frontmatter;
+    let includeFrontmatter = fileVal === true;
+    if (fileVal === undefined) {
+      try {
+        includeFrontmatter =
+          (await engine.getConfig('autopilot.incremental_extract_include_frontmatter')) === 'true';
+      } catch { /* config table unreadable → default off */ }
+    }
     // Extract is read-mostly against the filesystem + write to links table.
     // Honor dryRun by skipping with a 'skipped' entry: extract doesn't have
     // a clean dry-run mode today and runCycle should be honest about it.
@@ -1033,6 +1048,7 @@ async function runPhaseExtract(
       slugs: changedSlugs,  // undefined = full walk (first run / manual)
       signal,
       sourceId,
+      includeFrontmatter,  // honored on the incremental (slugs) path only
     });
     const linksCreated = result?.links_created ?? 0;
     const timelineCreated = result?.timeline_entries_created ?? 0;
