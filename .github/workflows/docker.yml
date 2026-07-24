@@ -62,4 +62,5 @@ jobs:
           provenance: true
           sbom: true
           build-args: |
+            GBRAIN_REPO=${{ github.repository }}
             GBRAIN_REF=${{ vars.GBRAIN_REF || 'master' }}

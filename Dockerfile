@@ -1,5 +1,6 @@
 FROM oven/bun:1
 
+ARG GBRAIN_REPO=garrytan/gbrain
 ARG GBRAIN_REF=master
 
 RUN apt-get update \
@@ -11,7 +12,7 @@ RUN apt-get update \
        postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-RUN bun install -g "github:garrytan/gbrain#${GBRAIN_REF}"
+RUN bun install -g "github:${GBRAIN_REPO}#${GBRAIN_REF}"
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 

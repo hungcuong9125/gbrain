@@ -1627,6 +1627,12 @@ export async function runServeHttp(engine: BrainEngine, options: ServeHttpOption
     req.on('close', () => sseClients.delete(res));
   });
 
+  // Redirect bare /admin to /admin/ so the wildcard route below matches.
+  // Express 5 {*path} requires at least a trailing slash; /admin alone 404s.
+  app.get('/admin', (_req: Request, res: Response) => {
+    res.redirect(301, '/admin/');
+  });
+
   // ---------------------------------------------------------------------------
   // Admin SPA static files (v0.36.x #1090)
   // ---------------------------------------------------------------------------
